@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVCELL Workflow System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+<nav class="bg-gray-800 border-b border-gray-700 p-4">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-green-400 tracking-wider">EVCELL WORKFLOW</h1>
+        <span class="text-sm text-gray-400">Панель керування замовленнями</span>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Моніторинг відділів</h2>
+        <div class="flex gap-4">
+            <button onclick="openModal()" class="bg-green-600 hover:bg-green-500 text-white text-sm font-medium px-4 py-2 rounded transition">
+                + Створити замовлення
+            </button>
+            <select id="departmentSelect" onchange="loadOrders()" class="bg-gray-800 border border-gray-700 rounded px-4 py-2 text-sm focus:outline-none focus:border-green-500">
+                <option value="1">Менеджмент (Всі нові)</option>
+                <option value="2">Інженерний відділ</option>
+                <option value="3">Технічний відділ (Збірка)</option>
+                <option value="4">Відділ якості (QA/QC)</option>
+                <option value="5">Логістика та видача</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    </div>
+</main>
+
+<div id="orderModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-lg font-bold mb-4 text-green-400">Нове замовлення</h3>
+        <form id="orderForm" onsubmit="createOrder(event)">
+            <div class="mb-4">
+                <label class="block text-xs text-gray-400 mb-1">Опис замовлення</label>
+                <textarea id="orderDescription" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500 h-24"></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs text-gray-400 mb-1">Дедлайн</label>
+                <input type="date" id="orderDeadline" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" onclick="closeModal()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">
+                    Скасувати
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium transition">
+                    Зберегти
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
