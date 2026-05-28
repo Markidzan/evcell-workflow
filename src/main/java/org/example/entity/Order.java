@@ -11,26 +11,24 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false, length = 50)
     private String status;
+    private LocalDate deadline;
+
+    @Column(name = "capacity_ah")
+    private Integer capacityAh;
+
+    @Column(name = "voltage_v")
+    private Integer voltageV;
+
+    @Column(name = "cell_type")
+    private String cellType;
 
     @ManyToOne
     @JoinColumn(name = "current_department_id")
     private Department currentDepartment;
 
-    private LocalDate deadline;
-
     public Order() {
-    }
-
-    public Order(String description, String status, Department currentDepartment, LocalDate deadline) {
-        this.description = description;
-        this.status = status;
-        this.currentDepartment = currentDepartment;
-        this.deadline = deadline;
     }
 
     public Long getId() {
@@ -57,19 +55,43 @@ public class Order {
         this.status = status;
     }
 
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setLine(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+    public Integer getCapacityAh() {
+        return capacityAh;
+    }
+
+    public void setCapacityAh(Integer capacityAh) {
+        this.capacityAh = capacityAh;
+    }
+
+    public Integer getVoltageV() {
+        return voltageV;
+    }
+
+    public void setVoltageV(Integer voltageV) {
+        this.voltageV = voltageV;
+    }
+
+    public String getCellType() {
+        return cellType;
+    }
+
+    public void setCellType(String cellType) {
+        this.cellType = cellType;
+    }
+
     public Department getCurrentDepartment() {
         return currentDepartment;
     }
 
     public void setCurrentDepartment(Department currentDepartment) {
         this.currentDepartment = currentDepartment;
-    }
-
-    public LocalDate getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(LocalDate deadline) {
-        this.deadline = deadline;
     }
 }

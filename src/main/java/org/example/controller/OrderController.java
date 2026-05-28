@@ -44,4 +44,9 @@ public class OrderController {
         List<OrderHistory> history = orderService.getOrderHistory(orderId);
         return ResponseEntity.ok(history);
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<java.util.Map<String, Long>> getStats() {
+        return ResponseEntity.ok(orderService.getStatistics());
+    }
 }

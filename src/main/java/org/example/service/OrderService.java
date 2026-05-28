@@ -92,4 +92,14 @@ public class OrderService {
     public List<OrderHistory> getOrderHistory(Long orderId) {
         return historyRepository.findByOrderId(orderId);
     }
+
+    public java.util.Map<String, Long> getStatistics() {
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        stats.put("total", orderRepository.count());
+        stats.put("new", orderRepository.countByStatus("NEW"));
+        stats.put("inProgress", orderRepository.countByStatus("IN_PROGRESS"));
+        stats.put("qa", orderRepository.countByStatus("QA_TESTING"));
+        stats.put("done", orderRepository.countByStatus("DONE"));
+        return stats;
+    }
 }

@@ -16,6 +16,28 @@
 </nav>
 
 <main class="max-w-7xl mx-auto p-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">Всього замовлень</p>
+            <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
+        </div>
+        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">Нові (Менеджмент)</p>
+            <p id="statNew" class="text-2xl font-bold text-yellow-400 mt-1">0</p>
+        </div>
+        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">В збірці / виробництві</p>
+            <p id="statInProgress" class="text-2xl font-bold text-blue-400 mt-1">0</p>
+        </div>
+        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">На тестуванні QA</p>
+            <p id="statQA" class="text-2xl font-bold text-purple-400 mt-1">0</p>
+        </div>
+        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
+            <p class="text-xs text-gray-400 uppercase font-bold">Готові до видачі</p>
+            <p id="statDone" class="text-2xl font-bold text-green-400 mt-1">0</p>
+        </div>
+    </div>
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold">Моніторинг відділів</h2>
         <div class="flex gap-4">
@@ -38,11 +60,30 @@
 
 <div id="orderModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-bold mb-4 text-green-400">Нове замовлення</h3>
+        <h3 class="text-lg font-bold mb-4 text-green-400">Нове технічне завдання EVCELL</h3>
         <form id="orderForm" onsubmit="createOrder(event)">
-            <div class="mb-4">
-                <label class="block text-xs text-gray-400 mb-1">Опис замовлення</label>
-                <textarea id="orderDescription" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500 h-24"></textarea>
+            <div class="mb-3">
+                <label class="block text-xs text-gray-400 mb-1">Тип осередків (Cell Type)</label>
+                <select id="orderCellType" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <option value="LiFePO4">LiFePO4 (LFP)</option>
+                    <option value="Li-Ion (Tesla NMA)">Li-Ion (Tesla NMA)</option>
+                    <option value="Li-Ion (BYD Blade)">Li-Ion (BYD Blade)</option>
+                    <option value="NMC">NMC (Mercedes/Ford Type)</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Ємність (Ah)</label>
+                    <input type="number" id="orderCapacity" required min="1" placeholder="напр. 140" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Напруга (V)</label>
+                    <input type="number" id="orderVoltage" required min="1" placeholder="напр. 48" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="block text-xs text-gray-400 mb-1">Коментарі / Додаткові вимоги</label>
+                <textarea id="orderDescription" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500 h-20" placeholder="Опишіть особливості збірки, БМС плату чи запобіжники..."></textarea>
             </div>
             <div class="mb-4">
                 <label class="block text-xs text-gray-400 mb-1">Дедлайн</label>
@@ -53,7 +94,7 @@
                     Скасувати
                 </button>
                 <button type="submit" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium transition">
-                    Зберегти
+                    Запустити у виробництво
                 </button>
             </div>
         </form>
@@ -61,5 +102,17 @@
 </div>
 
 <script src="/app.js"></script>
+<div id="historyModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-lg w-full flex flex-col max-h-[80vh]">
+        <h3 class="text-lg font-bold mb-4 text-blue-400">Історія технологічного процесу</h3>
+        <div id="historyContent" class="overflow-y-auto flex-1 space-y-4 pr-2">
+        </div>
+        <div class="flex justify-end mt-4 pt-3 border-t border-gray-700">
+            <button onclick="closeHistoryModal()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">
+                Закрити
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
