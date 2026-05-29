@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -20,33 +21,33 @@ public class OrderController {
 
     @PostMapping("/create")
     public ResponseEntity<Order> createOrder(@RequestBody Order order, @RequestParam Long managerId) {
-        Order createdOrder = orderService.createOrder(order, managerId);
-        return ResponseEntity.ok(createdOrder);
-    }
-
-    @PostMapping("/{orderId}/move")
-    public ResponseEntity<Order> moveOrder(@PathVariable Long orderId,
-                                           @RequestParam Long nextDepartmentId,
-                                           @RequestParam Long userId,
-                                           @RequestParam(required = false) String comment) {
-        Order updatedOrder = orderService.moveOrderToNextDepartment(orderId, nextDepartmentId, userId, comment);
-        return ResponseEntity.ok(updatedOrder);
+        return ResponseEntity.ok(orderService.createOrder(order, managerId));
     }
 
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<List<Order>> getOrdersByDepartment(@PathVariable Long departmentId) {
-        List<Order> orders = orderService.getOrdersByDepartment(departmentId);
-        return ResponseEntity.ok(orders);
+        if (departmentId == 0) {
+            return ResponseEntity.ok(orderService.getAllActiveOrders());
+        }
+        return ResponseEntity.ok(orderService.getOrdersByDepartment(departmentId));
     }
 
-    @GetMapping("/{orderId}/history")
-    public ResponseEntity<List<OrderHistory>> getOrderHistory(@PathVariable Long orderId) {
-        List<OrderHistory> history = orderService.getOrderHistory(orderId);
-        return ResponseEntity.ok(history);
+    @PostMapping("/{id}/move")
+    public ResponseEntity<Order> moveOrder(
+            @PathVariable Long id,
+            @RequestParam Long nextDepartmentId,
+            @RequestParam Long userId,
+            @RequestParam String comment) {
+        return ResponseEntity.ok(orderService.moveOrderToNextDepartment(id, nextDepartmentId, userId, comment));
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<OrderHistory>> getOrderHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderHistory(id));
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<java.util.Map<String, Long>> getStats() {
+    public ResponseEntity<Map<String, Long>> getStats() {
         return ResponseEntity.ok(orderService.getStatistics());
     }
 

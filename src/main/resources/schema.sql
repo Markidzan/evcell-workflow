@@ -26,3 +26,5 @@ CREATE TABLE IF NOT EXISTS order_history (
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     comment TEXT
 );
+
+SELECT setval(pg_get_serial_sequence('orders', 'id'), coalesce(max(id), 1)) FROM orders;

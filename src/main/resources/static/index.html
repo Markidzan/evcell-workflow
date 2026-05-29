@@ -3,134 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVCELL Workflow System</title>
+    <title>EVCELL Production ERP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .glass {
+            background: rgba(31, 41, 55, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="bg-[#0b0f19] text-gray-100 min-h-screen flex font-sans antialiased selection:bg-green-500/30">
 
-<nav class="bg-gray-800 border-b border-gray-700 p-4">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-green-400 tracking-wider">EVCELL WORKFLOW</h1>
-        <span class="text-sm text-gray-400">Панель керування замовленнями</span>
-    </div>
-</nav>
+<aside class="w-72 bg-[#111827]/80 border-r border-gray-800 flex flex-col justify-between fixed h-full z-10 backdrop-blur-md">
+    <div>
+        <div class="p-6 border-b border-gray-800 flex items-center gap-3">
+            <div class="p-2 bg-green-500/10 rounded-lg border border-green-500/20 text-green-400 animate-pulse">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-black tracking-wider text-white">EVCELL</h1>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Workflow System</p>
+            </div>
+        </div>
 
-<main class="max-w-7xl mx-auto p-6">
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
-            <p class="text-xs text-gray-400 uppercase font-bold">Всього замовлень</p>
-            <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
-        </div>
-        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
-            <p class="text-xs text-gray-400 uppercase font-bold">Нові (Менеджмент)</p>
-            <p id="statNew" class="text-2xl font-bold text-yellow-400 mt-1">0</p>
-        </div>
-        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
-            <p class="text-xs text-gray-400 uppercase font-bold">В збірці / виробництві</p>
-            <p id="statInProgress" class="text-2xl font-bold text-blue-400 mt-1">0</p>
-        </div>
-        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
-            <p class="text-xs text-gray-400 uppercase font-bold">На тестуванні QA</p>
-            <p id="statQA" class="text-2xl font-bold text-purple-400 mt-1">0</p>
-        </div>
-        <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg shadow-md text-center">
-            <p class="text-xs text-gray-400 uppercase font-bold">Готові до видачі</p>
-            <p id="statDone" class="text-2xl font-bold text-green-400 mt-1">0</p>
-        </div>
-    </div>
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold">Моніторинг відділів</h2>
-        <div class="flex gap-4">
-            <button onclick="openModal()" class="bg-green-600 hover:bg-green-500 text-white text-sm font-medium px-4 py-2 rounded transition">
-                + Створити замовлення
-            </button>
-            <select id="departmentSelect" onchange="loadOrders()" class="bg-gray-800 border border-gray-700 rounded px-4 py-2 text-sm focus:outline-none focus:border-green-500">
-                <option value="1">Менеджмент (Всі нові)</option>
-                <option value="2">Інженерний відділ</option>
-                <option value="3">Технічний відділ (Збірка)</option>
-                <option value="4">Відділ якості (QA/QC)</option>
-                <option value="5">Логістика та видача</option>
-            </select>
+        <div class="px-4 py-6">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-3">Виробничі відділи</p>
+            <nav class="space-y-1" id="sidebarNavigation">
+                <button onclick="switchDepartment(1, this)" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-green-600 text-white shadow-lg shadow-green-600/10" id="defaultDeptBtn">
+                    <i data-lucide="layers" class="w-4 h-4"></i> Менеджмент (Нові)
+                </button>
+                <button onclick="switchDepartment(2, this)" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i data-lucide="cpu" class="w-4 h-4"></i> Інженерний відділ
+                </button>
+                <button onclick="switchDepartment(3, this)" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i data-lucide="wrench" class="w-4 h-4"></i> Технічний цех (Збірка)
+                </button>
+                <button onclick="switchDepartment(4, this)" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Відділ якості (QA/QC)
+                </button>
+                <button onclick="switchDepartment(5, this)" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i data-lucide="truck" class="w-4 h-4"></i> Логістика та видача
+                </button>
+            </nav>
         </div>
     </div>
 
-    <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="p-4 border-t border-gray-800 bg-[#0d1321]">
+        <div class="flex items-center gap-3 p-2">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-green-600 to-emerald-400 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                ОК
+            </div>
+            <div>
+                <h4 class="text-sm font-semibold text-gray-200">Олексій Коваленко</h4>
+                <p class="text-xs text-gray-500 font-medium">Головний Менеджер</p>
+            </div>
+        </div>
     </div>
-</main>
+</aside>
 
-<div id="orderModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-bold mb-4 text-green-400">Нове технічне завдання EVCELL</h3>
+<div class="flex-1 pl-72">
+
+    <header class="h-20 border-b border-gray-800/60 px-8 flex items-center justify-between sticky top-0 bg-[#0b0f19]/80 backdrop-blur-md z-20">
+        <div class="flex items-center gap-2">
+            <h2 id="currentDepartmentTitle" class="text-xl font-bold text-white">Менеджмент (Всі нові ТЗ)</h2>
+        </div>
+        <button onclick="openModal()" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-green-500/10 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Запустити нове ТЗ
+        </button>
+    </header>
+
+    <main class="p-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div onclick="clickStatCard(0)" class="glass border border-gray-800 p-4 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 hover:border-gray-600">
+                <div class="absolute -right-4 -bottom-4 text-gray-700/10 group-hover:text-gray-700/20 group-hover:scale-110 transition-all duration-300"><i data-lucide="bar-chart-3" class="w-16 h-16"></i></div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Всього замовлень</p>
+                <p id="statTotal" class="text-2xl font-black text-white mt-1">0</p>
+            </div>
+            <div onclick="clickStatCard(1)" class="glass border border-gray-800 p-4 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 hover:border-gray-500/50 hover:shadow-yellow-500/5">
+                <div class="absolute -right-4 -bottom-4 text-yellow-500/5 group-hover:text-yellow-500/10 group-hover:scale-110 transition-all duration-300"><i data-lucide="clock" class="w-16 h-16"></i></div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Нові завдання</p>
+                <p id="statNew" class="text-2xl font-black text-yellow-400 mt-1">0</p>
+            </div>
+            <div onclick="clickStatCard(3)" class="glass border border-gray-800 p-4 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 hover:border-blue-500/50 hover:shadow-blue-500/5">
+                <div class="absolute -right-4 -bottom-4 text-blue-500/5 group-hover:text-blue-500/10 group-hover:scale-110 transition-all duration-300"><i data-lucide="activity" class="w-16 h-16"></i></div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">В цехах збірки</p>
+                <p id="statInProgress" class="text-2xl font-black text-blue-400 mt-1">0</p>
+            </div>
+            <div onclick="clickStatCard(4)" class="glass border border-gray-800 p-4 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 hover:border-purple-500/50 hover:shadow-purple-500/5">
+                <div class="absolute -right-4 -bottom-4 text-purple-500/5 group-hover:text-purple-500/10 group-hover:scale-110 transition-all duration-300"><i data-lucide="test-tube" class="w-16 h-16"></i></div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">На стенді QA</p>
+                <p id="statQA" class="text-2xl font-black text-purple-400 mt-1">0</p>
+            </div>
+            <div onclick="clickStatCard(5)" class="glass border border-gray-800 p-4 rounded-xl shadow-lg relative overflow-hidden group cursor-pointer hover:scale-[1.02] active:scale-95 transition-all duration-200 hover:border-green-500/50 hover:shadow-green-500/5">
+                <div class="absolute -right-4 -bottom-4 text-green-500/5 group-hover:text-green-500/10 group-hover:scale-110 transition-all duration-300"><i data-lucide="package-check" class="w-16 h-16"></i></div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Готові до видачі</p>
+                <p id="statDone" class="text-2xl font-black text-green-400 mt-1">0</p>
+            </div>
+        </div>
+
+        <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+    </main>
+</div>
+
+<div id="orderModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="glass border border-gray-700/60 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+        <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="file-plus-2" class="text-green-400 w-5 h-5"></i>
+            <h3 class="text-lg font-bold text-white">Нове технічне завдання EVCELL</h3>
+        </div>
         <form id="orderForm" onsubmit="createOrder(event)">
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Бренд осередків</label>
-                    <input type="text" id="orderCellBrand" required placeholder="напр. LG Chem, Samsung" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Бренд осередків</label>
+                    <input type="text" id="orderCellBrand" required placeholder="напр. LG Chem" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Конфігурація (S)</label>
-                    <input type="text" id="orderBatteryConfig" required placeholder="напр. 6S, 14S" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Конфігурація (S)</label>
+                    <input type="text" id="orderBatteryConfig" required placeholder="напр. 14S" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-3 mb-3">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Обсяг партії (шт)</label>
-                    <input type="number" id="orderQuantity" required min="1" value="1" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Обсяг (шт)</label>
+                    <input type="number" id="orderQuantity" required min="1" value="1" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Ємність (Ah)</label>
-                    <input type="number" id="orderCapacity" required min="1" placeholder="85" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Ємність (Ah)</label>
+                    <input type="number" id="orderCapacity" required min="1" placeholder="85" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Напруга (V)</label>
-                    <input type="number" id="orderVoltage" required min="1" placeholder="24" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Напруга (V)</label>
+                    <input type="number" id="orderVoltage" required min="1" placeholder="48" class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
                 </div>
             </div>
             <div class="mb-3">
-                <label class="block text-xs text-gray-400 mb-1">Хімія / Нотатки</label>
-                <textarea id="orderDescription" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500 h-16" placeholder="Тонка термоусадка, звичайний балансир..."></textarea>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Нотатки збірки</label>
+                <textarea id="orderDescription" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition h-20" placeholder="Особливості балансування, ізоляції..."></textarea>
             </div>
             <div class="mb-4">
-                <label class="block text-xs text-gray-400 mb-1">Дедлайн</label>
-                <input type="date" id="orderDeadline" required class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm focus:outline-none focus:border-green-500">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Дедлайн</label>
+                <input type="date" id="orderDeadline" required class="w-full bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-green-500 transition">
             </div>
             <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">
-                    Скасувати
-                </button>
-                <button type="submit" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium transition">
-                    Запустити партію
-                </button>
+                <button type="button" onclick="closeModal()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium transition">Скасувати</button>
+                <button type="submit" class="bg-green-600 hover:bg-green-500 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition shadow-lg shadow-green-600/20">Запустити у цех</button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="/app.js"></script>
-<div id="historyModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-lg w-full flex flex-col max-h-[85vh]">
-        <h3 class="text-lg font-bold mb-4 text-blue-400">Технологічний чат та історія ТЗ</h3>
-
-        <div id="historyContent" class="overflow-y-auto flex-1 space-y-4 pr-2 min-h-[300px]">
+<div id="historyModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="glass border border-gray-700/60 rounded-2xl p-6 max-w-lg w-full flex flex-col max-h-[85vh] shadow-2xl">
+        <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="message-square-code" class="text-blue-400 w-5 h-5"></i>
+            <h3 class="text-lg font-bold text-white">Технологічний чат та лог ТЗ</h3>
         </div>
 
-        <div class="border-t border-gray-700 pt-3 mt-4">
-            <label class="block text-xs text-gray-400 mb-1">Задати питання / Додати примітку до ТЗ:</label>
+        <div id="historyContent" class="overflow-y-auto flex-1 space-y-4 pr-2 min-h-[350px]">
+        </div>
+
+        <div class="border-t border-gray-800 pt-4 mt-4">
             <div class="flex gap-2">
                 <input type="hidden" id="activeHistoryOrderId">
-                <input type="text" id="chatCommentInput" placeholder="Напишіть повідомлення (напр., Перевірте БМС...)" class="flex-1 bg-gray-900 border border-gray-700 rounded p-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
-                <button onclick="sendChatComment()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded transition font-medium">
-                    Надіслати
-                </button>
+                <input type="text" id="chatCommentInput" placeholder="Напишіть коментар до збірки/тестування..." class="flex-1 bg-[#0b0f19] border border-gray-700 rounded-xl p-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500 transition">
+                <button onclick="sendChatComment()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/20">Надіслати</button>
             </div>
         </div>
-
-        <div class="flex justify-end mt-4 pt-2 border-t border-gray-600">
-            <button onclick="closeHistoryModal()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition">
-                Закрити
-            </button>
+        <div class="flex justify-end mt-4 pt-2 border-t border-gray-800">
+            <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium transition">Закрити</button>
         </div>
     </div>
 </div>
+
+<script src="/app.js"></script>
 </body>
 </html>

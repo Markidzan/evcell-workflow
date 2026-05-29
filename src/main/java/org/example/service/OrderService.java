@@ -151,4 +151,11 @@ public class OrderService {
         order.setIsArchived(true);
         orderRepository.save(order);
     }
+
+    public List<Order> getAllActiveOrders() {
+        return orderRepository.findAll().stream()
+                .filter(order -> !order.getIsArchived())
+                .collect(java.util.stream.Collectors.toList());
+    }
 }
+
