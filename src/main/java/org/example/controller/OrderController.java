@@ -49,4 +49,19 @@ public class OrderController {
     public ResponseEntity<java.util.Map<String, Long>> getStats() {
         return ResponseEntity.ok(orderService.getStatistics());
     }
+
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<Void> addComment(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @RequestParam String comment) {
+        orderService.addOrderComment(id, userId, comment);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/archive")
+    public ResponseEntity<Void> archiveOrder(@PathVariable Long id) {
+        orderService.archiveOrder(id);
+        return ResponseEntity.ok().build();
+    }
 }

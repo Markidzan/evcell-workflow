@@ -24,9 +24,31 @@ public class Order {
     @Column(name = "cell_type")
     private String cellType;
 
+    private Integer quantity;
+
+    @Column(name = "completed_quantity")
+    private Integer completedQuantity;
+
+    @Column(name = "battery_config")
+    private String batteryConfig;
+
+    @Column(name = "cell_brand")
+    private String cellBrand;
+
     @ManyToOne
     @JoinColumn(name = "current_department_id")
     private Department currentDepartment;
+
+    @Column(name = "is_archived")
+    private Boolean isArchived = false;
+
+    public Boolean getIsArchived() {
+        return isArchived;
+    }
+
+    public void setIsArchived(Boolean archived) {
+        isArchived = archived;
+    }
 
     public Order() {
     }
@@ -59,7 +81,7 @@ public class Order {
         return deadline;
     }
 
-    public void setLine(LocalDate deadline) {
+    public void setDeadline(LocalDate deadline) {
         this.deadline = deadline;
     }
 
@@ -87,6 +109,38 @@ public class Order {
         this.cellType = cellType;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Integer getCompletedQuantity() {
+        return completedQuantity;
+    }
+
+    public void setCompletedQuantity(Integer completedQuantity) {
+        this.completedQuantity = completedQuantity;
+    }
+
+    public String getBatteryConfig() {
+        return batteryConfig;
+    }
+
+    public void setBatteryConfig(String batteryConfig) {
+        this.batteryConfig = batteryConfig;
+    }
+
+    public String getCellBrand() {
+        return cellBrand;
+    }
+
+    public void setCellBrand(String cellBrand) {
+        this.cellBrand = cellBrand;
+    }
+
     public Department getCurrentDepartment() {
         return currentDepartment;
     }
@@ -94,4 +148,6 @@ public class Order {
     public void setCurrentDepartment(Department currentDepartment) {
         this.currentDepartment = currentDepartment;
     }
+
+
 }

@@ -36,6 +36,30 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
 
         order.setStatus("NEW");
+        order.setCompletedQuantity(0);
+
+        int seriesCount = 1;
+        try {
+            String config = order.getBatteryConfig().replaceAll("[^0-9]", "");
+            if (!config.isEmpty()) {
+                seriesCount = Integer.parseInt(config);
+            }
+        } catch (Exception e) {
+            seriesCount = 1;
+        }
+
+        int totalCells = seriesCount * order.getQuantity();
+
+        String smartDescription = String.format(
+                "Партія: %d шт. Конфігурація: %s. Осередки: %s. Загальна кількість елементів для порізки та збірки: %d шт. %s",
+                order.getQuantity(),
+                order.getBatteryConfig(),
+                order.getCellBrand(),
+                totalCells,
+                order.getDescription()
+        );
+        order.setDescription(smartDescription);
+
         Order savedOrder = orderRepository.save(order);
 
         OrderHistory history = new OrderHistory(
@@ -43,7 +67,7 @@ public class OrderService {
                 "NEW",
                 manager,
                 LocalDateTime.now(),
-                "Замовлення успішно створено менеджерським відділом EVCELL"
+                "Замовлення автоматично прораховано системою та передано на розгляд."
         );
         historyRepository.save(history);
 
@@ -86,7 +110,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByDepartment(Long departmentId) {
-        return orderRepository.findByCurrentDepartmentId(departmentId);
+        return orderRepository.findByCurrentDepartmentIdAndIsArchivedFalse(departmentId);
     }
 
     public List<OrderHistory> getOrderHistory(Long orderId) {
@@ -101,5 +125,30 @@ public class OrderService {
         stats.put("qa", orderRepository.countByStatus("QA_TESTING"));
         stats.put("done", orderRepository.countByStatus("DONE"));
         return stats;
+    }
+
+    @Transactional
+    public void addOrderComment(Long orderId, Long userId, String comment) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        OrderHistory history = new OrderHistory(
+                order,
+                order.getStatus(), // статус залишається поточним
+                user,
+                LocalDateTime.now(),
+                "[Коментар у чаті]: " + comment
+        );
+        historyRepository.save(history);
+    }
+
+    @Transactional
+    public void archiveOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        order.setIsArchived(true);
+        orderRepository.save(order);
     }
 }

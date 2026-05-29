@@ -3,8 +3,7 @@ async function loadOrders() {
     const container = document.getElementById('ordersContainer');
 
     container.innerHTML = '<p class="text-gray-400 col-span-3 text-center">Завантаження замовлень...</p>';
-
-    loadStats();
+    await loadStats();
 
     try {
         const response = await fetch(`/api/orders/department/${departmentId}`);
@@ -31,10 +30,11 @@ async function loadOrders() {
                         <span class="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30 font-semibold">${order.status}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 mb-3 bg-gray-900/60 p-2 rounded text-center text-xs border border-gray-700/30">
-                        <div><p class="text-gray-500 text-[10px] uppercase font-bold">Тип</p><p class="text-gray-200 font-medium">${order.cellType || '—'}</p></div>
-                        <div><p class="text-gray-500 text-[10px] uppercase font-bold">Ємність</p><p class="text-green-400 font-medium">${order.capacityAh ? order.capacityAh + ' Ah' : '—'}</p></div>
-                        <div><p class="text-gray-500 text-[10px] uppercase font-bold">Напруга</p><p class="text-blue-400 font-medium">${order.voltageV ? order.voltageV + ' V' : '—'}</p></div>
+                    <div class="grid grid-cols-4 gap-1 mb-3 bg-gray-900/60 p-2 rounded text-center text-[11px] border border-gray-700/30">
+                        <div><p class="text-gray-500 text-[9px] uppercase font-bold">Конфіг</p><p class="text-gray-200 font-medium">${order.batteryConfig || '—'}</p></div>
+                        <div><p class="text-gray-500 text-[9px] uppercase font-bold">Бренд</p><p class="text-gray-200 font-medium">${order.cellBrand || '—'}</p></div>
+                        <div><p class="text-gray-500 text-[9px] uppercase font-bold">Обсяг</p><p class="text-yellow-400 font-bold">${order.quantity || 1} шт</p></div>
+                        <div><p class="text-gray-500 text-[9px] uppercase font-bold">Параметри</p><p class="text-blue-400 font-medium">${order.capacityAh}Ah / ${order.voltageV}V</p></div>
                     </div>
 
                     <p class="text-gray-300 text-sm mb-4 bg-gray-900/20 p-2 rounded border border-gray-800">${order.description}</p>
@@ -44,19 +44,25 @@ async function loadOrders() {
                     <p class="text-xs text-gray-400 mb-2">Дедлайн: <strong class="text-gray-300">${order.deadline || 'Не вказано'}</strong></p>
 
                     <div class="bg-gray-900/50 p-2 rounded border border-gray-700/50 mt-3">
-                        <label class="block text-[10px] text-gray-400 uppercase font-bold mb-1">Перенаправити у відділ:</label>
-                        <div class="flex gap-1 mb-2">
-                            <select id="nextDept-${order.id}" class="bg-gray-800 border border-gray-700 rounded p-1 text-xs w-full focus:outline-none focus:border-green-500">
-                                <option value="2">Інженерний відділ</option>
-                                <option value="3">Технічний відділ (Збірка)</option>
-                                <option value="4">Відділ якості (QA/QC)</option>
-                                <option value="5">Логістика та видача</option>
-                            </select>
-                        </div>
-                        <input type="text" id="comment-${order.id}" placeholder="Коментар до кроку..." class="w-full bg-gray-800 border border-gray-700 rounded p-1 text-xs text-gray-200 mb-2 focus:outline-none focus:border-green-500">
-                        <button onclick="moveOrder(${order.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-1.5 rounded transition">
-                            Підтвердити переміщення →
-                        </button>
+                        ${order.status === 'DONE' || departmentId == 5 ? `
+                            <button onclick="archiveOrder(${order.id})" class="w-full bg-red-950 hover:bg-red-900 text-red-400 border border-red-900/50 text-xs font-medium py-2 rounded transition">
+                                📥 Здати в архів виробництва
+                            </button>
+                        ` : `
+                            <label class="block text-[10px] text-gray-400 uppercase font-bold mb-1">Перенаправити у відділ:</label>
+                            <div class="flex gap-1 mb-2">
+                                <select id="nextDept-${order.id}" class="bg-gray-800 border border-gray-700 rounded p-1 text-xs w-full focus:outline-none focus:border-green-500">
+                                    <option value="2">Інженерний відділ</option>
+                                    <option value="3">Технічний відділ (Збірка)</option>
+                                    <option value="4">Відділ якості (QA/QC)</option>
+                                    <option value="5">Логістика та видача</option>
+                                </select>
+                            </div>
+                            <input type="text" id="comment-${order.id}" placeholder="Коментар до кроку..." class="w-full bg-gray-800 border border-gray-700 rounded p-1 text-xs text-gray-200 mb-2 focus:outline-none focus:border-green-500">
+                            <button onclick="moveOrder(${order.id})" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-1.5 rounded transition">
+                                Підтвердити переміщення →
+                            </button>
+                        `}
                     </div>
                 </div>
             `;
@@ -83,14 +89,18 @@ async function createOrder(event) {
 
     const description = document.getElementById('orderDescription').value;
     const deadline = document.getElementById('orderDeadline').value;
-    const cellType = document.getElementById('orderCellType').value;
+    const cellBrand = document.getElementById('orderCellBrand').value;
+    const batteryConfig = document.getElementById('orderBatteryConfig').value;
+    const quantity = document.getElementById('orderQuantity').value;
     const capacityAh = document.getElementById('orderCapacity').value;
     const voltageV = document.getElementById('orderVoltage').value;
 
     const orderData = {
         description: description,
         deadline: deadline,
-        cellType: cellType,
+        cellBrand: cellBrand,
+        batteryConfig: batteryConfig,
+        quantity: parseInt(quantity),
         capacityAh: parseInt(capacityAh),
         voltageV: parseInt(voltageV),
         currentDepartment: { id: 1 }
@@ -107,8 +117,7 @@ async function createOrder(event) {
 
         if (response.ok) {
             closeModal();
-            loadOrders();
-            loadStats();
+            await loadOrders();
         } else {
             alert('Помилка при створенні замовлення');
         }
@@ -129,8 +138,7 @@ async function moveOrder(orderId) {
         });
 
         if (response.ok) {
-            loadOrders();
-            loadStats();
+            await loadOrders();
         } else {
             alert('Помилка при переміщенні замовлення');
         }
@@ -141,6 +149,7 @@ async function moveOrder(orderId) {
 }
 
 async function viewHistory(orderId) {
+    document.getElementById('activeHistoryOrderId').value = orderId;
     const content = document.getElementById('historyContent');
     content.innerHTML = '<p class="text-gray-400 text-center text-sm">Завантаження історії...</p>';
     document.getElementById('historyModal').classList.remove('hidden');
@@ -202,4 +211,46 @@ async function loadStats() {
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', loadOrders);
+
+async function sendChatComment() {
+    const orderId = document.getElementById('activeHistoryOrderId').value;
+    const commentInput = document.getElementById('chatCommentInput');
+    const comment = commentInput.value.trim();
+    const userId = 1; // поточний користувач (Олексій)
+
+    if (!comment) return;
+
+    try {
+        const response = await fetch(`/api/orders/${orderId}/comment?userId=${userId}&comment=${encodeURIComponent(comment)}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            commentInput.value = '';
+            await viewHistory(orderId); // миттєво оновлюємо чат на екрані
+        } else {
+            alert('Не вдалося надіслати коментар');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Помилка з’єднання з сервером');
+    }
+}
+
+async function archiveOrder(orderId) {
+    if (!confirm('Ви впевнені, що хочете заархівувати це замовлення? Воно зникне з активної панелі моніторингу.')) return;
+
+    try {
+        const response = await fetch(`/api/orders/${orderId}/archive`, { method: 'POST' });
+        if (response.ok) {
+            await loadOrders();
+        } else {
+            alert('Помилка при архівації замовлення');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Помилка з’єднання з сервером');
+    }
+}
